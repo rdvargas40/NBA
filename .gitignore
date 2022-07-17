@@ -1,0 +1,8 @@
+# Pycache
+__pycache__/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Credentials File
+dwh.cfg

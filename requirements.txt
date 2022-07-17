@@ -1,0 +1,3 @@
+pandas==1.4.2
+boto3==1.24.12
+nba_api
