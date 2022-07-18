@@ -1,8 +1,17 @@
-# Pycache
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+**/__pycache__
 
 # Jupyter Notebook
 .ipynb_checkpoints
 
 # Credentials File
 dwh.cfg
+
+# Unit test / coverage reports
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
