@@ -2,6 +2,8 @@
 __pycache__/
 *.py[cod]
 **/__pycache__
+.DS_Store
+*/.aws-sam/*
 
 # Jupyter Notebook
 .ipynb_checkpoints
