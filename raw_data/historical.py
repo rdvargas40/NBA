@@ -2,7 +2,6 @@
 Functions for downloading and populating all the historial data in S3
 """
 import configparser
-from matplotlib.style import available
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playergamelog
 from nba_api.stats.library.parameters import SeasonAll
