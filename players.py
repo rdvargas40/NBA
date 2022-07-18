@@ -29,7 +29,7 @@ def populate_players_table():
         first_name = player['first_name'].replace("'", "")
         last_name = player['last_name'].replace("'", "")
         active = str(player['is_active']).upper()
-        player_string =  f"({player_id}, '{first_name}', '{last_name}', {active}) "
+        player_string =  str((player_id, first_name, last_name, active))
         insert_many_query += (player_string + ',\n')
     insert_many_query = insert_many_query[:-2] + "\n;"
     
@@ -49,7 +49,7 @@ def update_players_table():
         first_name = player['first_name'].replace("'", "")
         last_name = player['last_name'].replace("'", "")
         active = str(player['is_active']).upper()
-        player_string =  f"({player_id}, '{first_name}', '{last_name}', {active}) "
+        player_string =  str((player_id, first_name, last_name, active))
         update_many_query += (player_string + ',\n')
     update_many_query = update_many_query[:-2]
 
