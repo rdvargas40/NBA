@@ -43,7 +43,8 @@ def get_write_player_matchs_historical_data(team_id: int) -> bool:
             )
         return True
         break
-      except:
+      except Exception as e:
+        print('Failed to download the data from team with id: ', team_id)
         continue
     return False
 
