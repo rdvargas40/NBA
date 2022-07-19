@@ -165,3 +165,4 @@ def populate_database() -> List:
             failed_files.append(file_path)
     print(f'File Upload Success Ratio: {1 - len(failed_files)/len(s3_file_paths): .0%}')
     return failed_files
+    

@@ -55,12 +55,8 @@ def update_teams_table():
     update_many_query += """--sql
         ON CONFLICT (team_id)
         DO 
-            UPDATE SET is_active = EXCLUDED.full_name,
-            UPDATE SET nickname = EXCLUDED.nickname,
-            UPDATE SET abbreviation = EXCLUDED.abbreviation,
-            UPDATE SET city = EXCLUDED.city,
-            UPDATE SET state = EXCLUDED.state,
-            UPDATE SET year_founded = EXCLUDED.year_founded,
+            UPDATE SET (full_name, nick_name, abbreviation, city, state, year_founded) =
+            (EXCLUDED.full_name, EXCLUDED.nick_name, EXCLUDED.abbreviation, EXCLUDED.city, EXCLUDED.state, EXCLUDED.year_founded)
         ;
     """
     
