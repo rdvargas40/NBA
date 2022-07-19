@@ -145,8 +145,12 @@ def populate_database() -> List:
     
     # Identify the file paths to team match files
     s3_client = boto3.client("s3")
-    s3_objects = s3_client.list_objects_v2(Bucket='nba.pipeline', Prefix="teams/matchs").get("Contents")
-    s3_file_paths = [obj['Key'] for obj in s3_objects]
+    s3_paginator = s3_client.get_paginator('list_objects_v2')
+    s3_pages = s3_paginator.paginate(Bucket='nba.pipeline', Prefix="teams/matchs")
+    s3_file_paths = []
+    for s3_page in s3_pages:
+        for s3_obj in s3_page['Contents']:
+            s3_file_paths.append(s3_obj['Key'])
 
     failed_files = []
     for file_path in tqdm(s3_file_paths):
