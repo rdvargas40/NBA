@@ -11,7 +11,7 @@ def create_teams_table():
             team_id INT PRIMARY KEY,
             full_name VARCHAR NOT NULL,
             nick_name VARCHAR NOT NULL,
-            abbreviation VARCHAR NOT NULL,
+            abbreviation VARCHAR NOT NULL UNIQUE,
             city VARCHAR NOT NULL,
             state VARCHAR NOT NULL,
             year_founded INT NOT NULL
@@ -48,7 +48,6 @@ def update_teams_table():
         keys = ['id', 'full_name', 'nickname', 'abbreviation', 'city', 'state', 'year_founded']
         team_string = tuple([team[k] for k in keys])
         team_string = str(team_string)
-        update_many_query += (team_string + ',\n')
         update_many_query += (team_string + ',\n')
     update_many_query = update_many_query[:-2]
 
