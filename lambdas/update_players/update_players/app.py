@@ -32,7 +32,7 @@ def update_players_table():
             players (player_id, first_name, last_name, is_active)
         VALUES
     """
-    for player in players.get_players()[:3]:
+    for player in players.get_players():
         player_id = player['id']
         first_name = player['first_name'].replace("'", "")
         last_name = player['last_name'].replace("'", "")
