@@ -1,5 +1,5 @@
 """
-Teams Matchs Table
+Teams matches Table
 """
 import configparser
 from nba_api.stats.static import teams
@@ -23,7 +23,7 @@ AWS_REGION = config.get("AWS", "AWS_REGION")
 
 available_team_ids = [team['id'] for team in teams.get_teams()]
 
-def get_write_player_matchs_historical_data(team_id: int) -> bool:
+def get_write_player_matches_historical_data(team_id: int) -> bool:
     """
     Asks for the team historial data match by match from the nba_api, then writes it on S3
     Args:
@@ -43,7 +43,7 @@ def get_write_player_matchs_historical_data(team_id: int) -> bool:
             # Each Seasson is written in an individual file into the team folder 
             df_team_games_season = df_team_games_all[df_team_games_all.SEASON_ID == season]
             df_team_games_season.to_csv(
-                f"s3://nba.pipeline/teams/matchs/{team_id}/{season}.csv", index=False,
+                f"s3://nba.pipeline/teams/matches/{team_id}/{season}.csv", index=False,
                 storage_options={'key': AWS_KEY, 'secret': AWS_SECRET}
             )
         return True
@@ -53,9 +53,9 @@ def get_write_player_matchs_historical_data(team_id: int) -> bool:
         continue
     return False
 
-def populate_teams_matchs_historical_data(team_id_list: List=available_team_ids) -> List:
+def populate_teams_matches_historical_data(team_id_list: List=available_team_ids) -> List:
     """
-    Puplates the teams matchs historical data in S3
+    Puplates the teams matches historical data in S3
     Args:
         team_id_list (List=available_team_ids): List of ids from the teams whose data is to be downloaded and written into S3
     Returns:
@@ -63,16 +63,16 @@ def populate_teams_matchs_historical_data(team_id_list: List=available_team_ids)
     """
     failed_teams_ids = []
     for team_id in tqdm(team_id_list):
-        success = get_write_player_matchs_historical_data(team_id)
+        success = get_write_player_matches_historical_data(team_id)
         if not success:
             failed_teams_ids.append(team_id)
     print(f'Success Rate: {1 - len(failed_teams_ids)/len(team_id_list): .0%}')
     return failed_teams_ids
 
 def create_table():
-    """ Creates the teams_matchs table """
+    """ Creates the teams_matches table """
     exec_sql_query("""--sql
-        CREATE TABLE IF NOT EXISTS teams_matchs (
+        CREATE TABLE IF NOT EXISTS teams_matches (
             team_id INT REFERENCES teams(team_id),
             match_id INT,
             season_id VARCHAR,
@@ -116,7 +116,7 @@ def load_file_into_databbase(df_file: pd.DataFrame):
     # Definition of the values to be inserted
     update_many_query = """--sql
         INSERT INTO
-            teams_matchs (team_id, match_id, season_id, game_date, opponent, result, duration, points, rebounds, assists, steals, blocks, turnovers)
+            teams_matches (team_id, match_id, season_id, game_date, opponent, result, duration, points, rebounds, assists, steals, blocks, turnovers)
         VALUES
     """
     for i in range(len(df_file)):
@@ -138,7 +138,7 @@ def load_file_into_databbase(df_file: pd.DataFrame):
 
 def populate_database() -> List:
     """
-    Populate the database with the teams matchs files hosted in S3
+    Populate the database with the teams matches files hosted in S3
     Returns:
         List of files that could not be loaded into the database
     """
@@ -146,7 +146,7 @@ def populate_database() -> List:
     # Identify the file paths to team match files
     s3_client = boto3.client("s3")
     s3_paginator = s3_client.get_paginator('list_objects_v2')
-    s3_pages = s3_paginator.paginate(Bucket='nba.pipeline', Prefix="teams/matchs")
+    s3_pages = s3_paginator.paginate(Bucket='nba.pipeline', Prefix="teams/matches")
     s3_file_paths = []
     for s3_page in s3_pages:
         for s3_obj in s3_page['Contents']:
