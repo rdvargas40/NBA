@@ -29,7 +29,7 @@ def exec_sql_query(query: str):
     conn.close()
 
 
-def load_file_into_databbase(df_file: pd.DataFrame):
+def load_file_into_database(df_file: pd.DataFrame):
     """
     Loads a team crude file into the database
     Args:
@@ -55,7 +55,7 @@ def load_file_into_databbase(df_file: pd.DataFrame):
     # Definition of the values to be inserted
     update_many_query = """--sql
         INSERT INTO
-            teams_matchs (team_id, match_id, season_id, game_date, opponent, result, duration, points, rebounds, assists, steals, blocks, turnovers)
+            teams_matches (team_id, match_id, season_id, game_date, opponent, result, duration, points, rebounds, assists, steals, blocks, turnovers)
         VALUES
     """
     for i in range(len(df_file)):
@@ -94,7 +94,7 @@ def lambda_handler(event, context):
 
     s3_file_path = event['Records'][0]['s3']['object']['key']
     new_file_df = pd.read_csv('s3://nba.pipeline/' + s3_file_path)
-    load_file_into_databbase(new_file_df)
+    load_file_into_database(new_file_df)
 
     return {
         "statusCode": 200,

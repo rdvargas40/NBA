@@ -1,7 +1,6 @@
 """
 Teams matches Table
 """
-import configparser
 from nba_api.stats.static import teams
 from nba_api.stats.endpoints import leaguegamefinder
 from sql_queries import exec_sql_query
@@ -12,14 +11,6 @@ from warnings import filterwarnings
 import boto3
 
 filterwarnings('ignore')
-
-# Load AWS Credentials
-config = configparser.ConfigParser()
-config.read_file(open("dwh.cfg"))
-
-AWS_KEY = config.get("AWS", "AWS_KEY")
-AWS_SECRET = config.get("AWS", "AWS_SECRET")
-AWS_REGION = config.get("AWS", "AWS_REGION")
 
 available_team_ids = [team['id'] for team in teams.get_teams()]
 
@@ -42,10 +33,7 @@ def get_write_player_matches_historical_data(team_id: int) -> bool:
         for season in team_seasons:
             # Each Seasson is written in an individual file into the team folder 
             df_team_games_season = df_team_games_all[df_team_games_all.SEASON_ID == season]
-            df_team_games_season.to_csv(
-                f"s3://nba.pipeline/teams/matches/{team_id}/{season}.csv", index=False,
-                storage_options={'key': AWS_KEY, 'secret': AWS_SECRET}
-            )
+            df_team_games_season.to_csv(f"s3://nba.pipeline/teams/matches/{team_id}/{season}.csv", index=False)
         return True
         break
       except Exception as e:

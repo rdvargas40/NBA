@@ -1,8 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Step Function: Updates the teams table.
-  Then downloads the teams matches data for the last seasson to S3, one team at a time.
+  Serverless Pipeline that updates the teams tables
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
@@ -32,15 +31,15 @@ Resources:
       - LambdaInvokePolicy:
           FunctionName: !Ref UpdateTeamsMatchesS3Function
 
-  UpdateTeamsFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html
+  UpdateTeamsFunction: # This Lambda is activated at the start of the State Machine
+    Type: AWS::Serverless::Function
     Properties:
       Timeout: 180
       CodeUri: functions/update_teams/
       Handler: app.lambda_handler
       Runtime: python3.7
 
-  UpdateTeamsMatchesS3Function:
+  UpdateTeamsMatchesS3Function: # This Lambda is activated as part of the State Machine 
     Type: AWS::Serverless::Function
     Properties:
       Timeout: 180
@@ -48,3 +47,11 @@ Resources:
       Handler: app.lambda_handler
       Runtime: python3.7
 
+  UpdateTeamsMatchesFunction: # This Lambda is not activated as part of the State Machine
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 180
+      CodeUri: functions/update_teams_matches/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      

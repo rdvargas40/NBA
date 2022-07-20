@@ -2,9 +2,9 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "update-teams-matchs-s3"
+stack_name = "teams-pipeline"
 s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-apjc6xjp9424"
-s3_prefix = "update-teams-matchs-s3"
+s3_prefix = "teams-pipeline"
 region = "us-east-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"

@@ -1,7 +1,6 @@
 """
 Functions for downloading and populating all the historial data in S3
 """
-import configparser
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import playergamelog
 from nba_api.stats.library.parameters import SeasonAll
@@ -13,14 +12,6 @@ from warnings import filterwarnings
 import boto3
 
 filterwarnings('ignore')
-
-# Load AWS Credentials
-config = configparser.ConfigParser()
-config.read_file(open("dwh.cfg"))
-
-AWS_KEY = config.get("AWS", "AWS_KEY")
-AWS_SECRET = config.get("AWS", "AWS_SECRET")
-AWS_REGION = config.get("AWS", "AWS_REGION")
 
 available_player_ids = [player['id'] for player in players.get_players()]
 
@@ -45,10 +36,7 @@ def get_write_player_matches_historical_data(player_id: int) -> bool:
         for season in player_seasons:
             # Each Seasson is written in an individual file into the player folder 
             df_player_games_season = df_player_games_all[df_player_games_all.SEASON_ID == season]
-            df_player_games_season.to_csv(
-                f"s3://nba.pipeline/players/matches/{player_id}/{season}.csv", index=False,
-                storage_options={'key': AWS_KEY, 'secret': AWS_SECRET}
-            )
+            df_player_games_season.to_csv(f"s3://nba.pipeline/players/matches/{player_id}/{season}.csv", index=False)
         return True
         break
       except Exception as e:
