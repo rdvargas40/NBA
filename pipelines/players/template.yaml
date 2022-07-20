@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Serverless Pipeline that updates the players tables
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Tracing: Active
+  Api:
+    TracingEnabled: True
+
+Resources:
+  UpdatePlayersMachine:
+    Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+    Properties:
+      DefinitionUri: statemachine/players.asl.json
+      DefinitionSubstitutions:
+        UpdatePlayersFunctionArn: !GetAtt UpdatePlayersFunction.Arn
+        UpdatePlayersMatchesS3FunctionArn: !GetAtt UpdatePlayersMatchesS3Function.Arn
+      Events:
+        YearlySchedule:
+          Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
+          Properties:
+            Description: Schedule to run the state machine every year
+            Enabled: False # This schedule is disabled by default to avoid incurring charges.
+            Schedule: "rate(360 days)"
+      Policies: # Find out more about SAM policy templates: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html
+      - LambdaInvokePolicy:
+          FunctionName: !Ref UpdatePlayersFunction
+      - LambdaInvokePolicy:
+          FunctionName: !Ref UpdatePlayersMatchesS3Function
+
+  UpdatePlayersFunction: # This Lambda is activated at the start of the State Machine
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 180
+      CodeUri: functions/update_players/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+
+  UpdatePlayersMatchesS3Function: # This Lambda is activated as part of the State Machine 
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 180
+      CodeUri: functions/update_players_matches_s3/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+
+  UpdatePlayersMatchesFunction: # This Lambda is not activated as part of the State Machine
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 180
+      CodeUri: functions/update_players_matches/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      

@@ -1,0 +1,59 @@
+{
+    "Comment": "A description of my state machine",
+    "StartAt": "Update Player",
+    "States": {
+        "Update Player": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+                "Payload.$": "$",
+                "FunctionName": "${UpdatePlayersFunctionArn}"
+            },
+            "Retry": [
+                {
+                    "ErrorEquals": [
+                        "Lambda.ServiceException",
+                        "Lambda.AWSLambdaException",
+                        "Lambda.SdkClientException"
+                    ],
+                    "IntervalSeconds": 2,
+                    "MaxAttempts": 6,
+                    "BackoffRate": 2
+                }
+            ],
+            "Next": "Map"
+        },
+        "Map": {
+            "Type": "Map",
+            "End": true,
+            "Iterator": {
+                "StartAt": "Update Player Matches in S3",
+                "States": {
+                    "Update Player Matches in S3": {
+                        "Type": "Task",
+                        "Resource": "arn:aws:states:::lambda:invoke",
+                        "OutputPath": "$.Payload",
+                        "Parameters": {
+                            "Payload.$": "$",
+                            "FunctionName": "${UpdatePlayersMatchesS3FunctionArn}"
+                        },
+                        "Retry": [
+                            {
+                                "ErrorEquals": [
+                                    "Lambda.ServiceException",
+                                    "Lambda.AWSLambdaException",
+                                    "Lambda.SdkClientException"
+                                ],
+                                "IntervalSeconds": 2,
+                                "MaxAttempts": 6,
+                                "BackoffRate": 2
+                            }
+                        ],
+                        "End": true
+                    }
+                }
+            },
+            "ItemsPath": "$.Payload.player"
+        }
+    }
+}
