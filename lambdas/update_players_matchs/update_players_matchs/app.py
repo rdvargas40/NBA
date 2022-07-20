@@ -3,6 +3,9 @@ import configparser
 import psycopg2
 import boto3
 import pandas as pd
+from warnings import filterwarnings
+
+filterwarnings('ignore')
 
 # Load SQL Credentials
 config = configparser.ConfigParser()
@@ -31,31 +34,29 @@ def exec_sql_query(query: str):
 
 def load_file_into_databbase(df_file: pd.DataFrame):
     """
-    Loads a team crude file into the database
+    Loads a player crude file into the database
     Args:
-        df_file (pd.DataFrame): team crude file
+        df_file (pd.DataFrame): player crude file
     """
     
     df_file = df_file[[
-        'TEAM_ID', 'GAME_ID', 'SEASON_ID', 'GAME_DATE', 'MATCHUP', 'WL', 'MIN',
+        'Player_ID', 'Game_ID', 'SEASON_ID', 'MIN',
         'PTS', 'REB', 'AST', 'STL', 'BLK', 'TOV'
     ]]
 
     df_file.columns = [
-        'team_id', 'match_id', 'season_id', 'game_date', 'opponent', 'result', 'duration',
+        'player_id', 'match_id', 'season_id', 'minutes',
         'points', 'rebounds', 'assists', 'steals', 'blocks', 'turnovers'
     ]
 
-    
-    df_file['team_id'] = df_file['team_id'].astype(int)
+    df_file['player_id'] = df_file['player_id'].astype(int)
     df_file['match_id'] = df_file['match_id'].astype(int)
     df_file['season_id'] = df_file['season_id'].astype(str)
-    df_file['opponent'] = [x.split()[-1] for x in df_file['opponent']]
 
     # Definition of the values to be inserted
     update_many_query = """--sql
         INSERT INTO
-            teams_matchs (team_id, match_id, season_id, game_date, opponent, result, duration, points, rebounds, assists, steals, blocks, turnovers)
+            players_matchs (player_id, match_id, season_id, minutes, points, rebounds, assists, steals, blocks, turnovers)
         VALUES
     """
     for i in range(len(df_file)):
@@ -66,10 +67,10 @@ def load_file_into_databbase(df_file: pd.DataFrame):
 
     # Definition of the update rule
     update_many_query += """--sql
-        ON CONFLICT (team_id, match_id, season_id)
+        ON CONFLICT (player_id, match_id, season_id)
         DO 
-            UPDATE SET (duration, points, rebounds, assists, steals, blocks, turnovers) = 
-            (EXCLUDED.duration, EXCLUDED.points, EXCLUDED.rebounds, EXCLUDED.assists, EXCLUDED.steals, EXCLUDED.blocks, EXCLUDED.turnovers)
+            UPDATE SET (minutes, points, rebounds, assists, steals, blocks, turnovers) = 
+            (EXCLUDED.minutes, EXCLUDED.points, EXCLUDED.rebounds, EXCLUDED.assists, EXCLUDED.steals, EXCLUDED.blocks, EXCLUDED.turnovers)
         ;
     """
     
