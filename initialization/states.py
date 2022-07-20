@@ -1,5 +1,6 @@
 """
 Tabla de Información de los Estados
+https://apps.bea.gov/itable/iTable.cfm?ReqID=70&step=1s
 """
 import pandas as pd
 from sql_queries import exec_sql_query
