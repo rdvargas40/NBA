@@ -20,6 +20,64 @@ Para alcanzar estós objetivos se orquestro una base de datos alrededor de las s
 ## Base de Datos
 ![GitHub Logo](https://github.com/rdvargas40/NBA/blob/stagging/images/nba%20database%20diagram.png)
 
+## Diccionario de Datos
+
+### Salarios (salaries)
+- team_id: identidificador único de los equipos en la base de datos
+- year: año en el que arranca la temporada, es un entero que inicia desde 1990.
+- salaries: suma de los salarios de la nomina del equipo durante una temporada.
+
+### Estados (states)
+- state: nombre del estado de la unión americana
+- year: año calendario
+- personal_income: ingresos de las personas del estado durante el año ajustados por estacionalidad
+- population: población del estado en la mitad del periodo
+- pipc: ingreso promedio per capita
+
+### Equipos (teams)
+- team_id: identidificador único de los equipos en la base de datos
+- full_name: nombre completo del equipo (Ej. Los Angeles Lakers)
+- nick_name: apodo del equipo (Ej. Lakers)
+- abbreviation: sigla de tres letras con la que se muestra al equipo en los marcadores de los partidos (Ej. LAL). También es única por equipo.
+- city: ciudad en la que se encuentra la sede del equipo
+- state: estado en el que se encuentr la sede del equipo
+- year_founded: año en el que fue fundado el equipo
+
+### Jugadores (players)
+- player_id: indentificador único del jugador en la base de datos
+- first_name: primer nombre del jugador
+- last_name: apellido del jugador
+- is_active: booleano que permite identificar si el jugador se encuentra en activo o esta retirado
+
+### Partidos de los Equipos (teams_matches)
+Esta tabla contiene las estadísticas de los resultados de los partidos a nivel de equipo
+- team_id: identidificador único de los equipos en la base de datos
+- match_id: identificador único de los partidos en la base de datos
+- season_id: identificador único de la temporada en la base de datos
+- game_date: fecha del partido
+- opponent: oponente al que se enfrento el equipo en el partido, coincide con el campo abbreviation de la tabla teams
+- result: "W" si el equipo ganó, "L" si perdió, este sería el indicador principal objetivo de análisis para un cientifico de datos.
+- duration: duración en minutos del partido. En el baloncesto es muy variable en función de las faltas y los extra tiempos.
+- points: puntos anotados por el equipo
+- rebounds: rebotes capturados
+- assists: asistencias de anotación.
+- steals: robos de balón.
+- blocks: bloqueos de anotación.
+- turnovers: perdidas de balón sin disparo al tablero.
+
+### Partidos de los Equipos (players_matches)
+Esta tabla contiene las estadísticas de los resultados de los partidos a nivel de jugador individual
+- player_id: identidificador único de los equipos en la base de datos
+- match_id: identificador único de los partidos en la base de datos
+- season_id: identificador único de la temporada en la base de datos
+- minutes: número de minutos que el jugo en el partido. Debido a las rotaciones en un partido de baloncesto, esta cifra también es muy variable.
+- points: puntos anotados por el jugador.
+- rebounds: rebotes capturados
+- assists: asistencias de anotación.
+- steals: robos de balón.
+- blocks: bloqueos de anotación.
+- turnovers: perdidas de balón sin disparo al tablero.
+
 ## Intrucciones
 - dwh_template.cfg: Este archivo es un template para las credenciales de la base de datos en PostgreSQL. El archivo real se llama dwh.cfg, para correr los códigos, tiene que cargar este archivo en el paquete y en las carpetas de las lambdas de AWS (app.py)
 
