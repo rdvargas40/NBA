@@ -98,7 +98,41 @@ A continiación un diagrama de la Step Function:
 Este proceso se despliega en muy buena medida empleando el servicio AWS Serverless Application Model (SAM) (https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html) con instrucciones incluidas en este repositorio.
 
 ## Intrucciones
+### Inicialización de las Bases de Datos
+Dentro del repositorio hay dos carpetas: initialization y pipelines. La primera contiene las funciones necesarias para crear y llenar las bases de datos, mientras que la segunda tiene las aplicaciones que se requieren desplegar en la nube para mantener las bases de datos actualizadas.
+
+Dentro de initialization usualmente hay dos tipos de funciones por cada script (hay un script por tabla):
+- Las de tipo create_table crea o inicializa la tabla.
+- Las de tipo populate_table llenan la table con información histórica.
+
+Ejemplos:
+```python
+teams.py
+    create_teams_table # Crea la tabla de equipos
+    populate_teams_table # Llena la tabla de equipos con información histórica
+
+```
+
+### Confuguración del Pipeline
 - dwh_template.cfg: Este archivo es un template para las credenciales de la base de datos en PostgreSQL. El archivo real se llama dwh.cfg, para correr los códigos, tiene que cargar este archivo en el paquete y en las carpetas de las lambdas de AWS (app.py)
+- Asegurese de tener configuradas sus credenciales de AWS en el ambiente de desarrollo, en caso de que se encuentre trabajando en su computador local.
+- Las Step Function se encuentran integradas dentro de los pipelines de cada proceso (players y teams). Los pipelines incluyen ademas de la step funcion (statemachine), la lambda que recoge los archivos de S3 y los actualiza  a la base de datos.
+- Para desplegar un pipeline se requiere tener instalado el servicio SAM de AWS. Por favor siga las instrucciones de instalación en el enlace de la sección anterior.
+- Por favor verifice que tiene AWS SAM instalado en su ambiente de desarrollo.
+- Para desplegar un pipeline, ubique su directorio de trabajo en la carpeta del pipeline (Ej. pipelines/players/ o pipelines/teams/)
+- Ejecute 
+```bash
+sam build
+sam deploy --guided
+```
+- El pipeline (Step function y Lambdas) se encuentran desplegados en su cuenta de AWS.
+- Hay dos lambdas cuyos triggers deben configurarse de forma manual en la consola de AWS:
+    - update_players_matchs
+    - update_teams_matchs
+- Estas lambdas son las que recogen los archivos de S3. La razón es porque SAM solo puede configurar Triggers de aquellos servicios que se confuiguran en el repositorio. Estas dos Lambdas deben escuchar a eventos en S3 de tipo Put, que ocurran en el Bucket "nba.pipeline", dentro de las carpetas: "players/matchs" y "teams/matchs/" respectivamente.
+
+
+
 
 
 
