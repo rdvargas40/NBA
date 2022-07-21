@@ -18,7 +18,15 @@ Para alcanzar estós objetivos se orquestro una base de datos alrededor de las s
 - Tamaño de la población e ingreso por habitante de cada estado. Viene deun archivo csv descargado de la pagina https://apps.bea.gov/itable/iTable.cfm?ReqID=70&step=1s
 
 ## Base de Datos
+Para organizar estas fuentes de datos se eligió un modelo relacional. El diagrama se muestra a continuación:
 ![GitHub Logo](https://github.com/rdvargas40/NBA/blob/stagging/images/nba%20database%20diagram.png)
+
+La base de datos se encuentra alojada en AWS RDS empleando PostgreSQL. Las razones de la elección son las siguientes:
+- Garantizar la trazabilidad de las conexiones entre los datos.
+- El volúmen actual de datos no es muy grande.
+- El número de consultas que se requieren hacer al tiempo tampoco lo es.
+A pesar de que el propósito del proyecto es la análitica, no se eligio un modelo tipo estrella con una tabla central, debido a que las preguntas que se buscan resolver requieren unionen entres tablas directamente relacionadas. Ahora, en el escenario alternativo de que esta tabla empiece a crecer de forma importante, se podría reevaluar esta desición en favor del modelo tipo estrella, e incluso considerar tecnologías como Redshift, sin embargo, esto se puede construir como una capa encima del modelo actual.
+
 
 ## Diccionario de Datos
 
@@ -97,6 +105,13 @@ A continiación un diagrama de la Step Function:
 
 Este proceso se despliega en muy buena medida empleando el servicio AWS Serverless Application Model (SAM) (https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html) con instrucciones incluidas en este repositorio.
 
+¿Por que se emplearon estas tecnologías?
+- AWS Lambda: porque es serverless, no requiere servidores, solo ejecutar procesos cuando se necesitan. Muy practico para automatizar tareas.
+- AWS Step Function: para coordinar ejecuciones en la nube.
+- AWS SAM: permite desarrollar Lambdas y Step Functions dentro de un repositorio con control de cambios, y desplegarlas desde ese mismo ambiente.
+- AWS S3: trazabilidad de información. Economico. Se integra facilmente con los demas servicios empleaaods en el pipeline.
+- PostgreSQL: modelo realacional, con mucho soporte de desarrollo. Relativamente economico para el volumen de datos que esta manejando el pipeline.
+
 ## Intrucciones
 ### Inicialización de las Bases de Datos
 Dentro del repositorio hay dos carpetas: initialization y pipelines. La primera contiene las funciones necesarias para crear y llenar las bases de datos, mientras que la segunda tiene las aplicaciones que se requieren desplegar en la nube para mantener las bases de datos actualizadas.
@@ -171,3 +186,20 @@ Se colocan rangos superiores muy amplios debido a que siempore existe la pisibil
 - Bloqueos entre 0 y 40
 - Perdidas entre 0 y 40
 
+## Escenarios Alternativos
+1. Si los datos incrementaran en 100x.
+    - El número de partidos por jugador no puede aumentar mucho más, asi que seria que aumenten el número de equipos y jugadores. Tal vez procesando la información de otras ligas o que la NBA admita equipos de otras ciudades. El punto que quiero hacer es que si el número de partidos por jugador se mantiene en ese orden de magnitud, y lo mismo pasa con los equipos, la solución del pipeline sería robusta frente a un aumentos de equipos (y por ende de jugadores).
+    - Lo que si se puede empezar a quedar la base de datos. PostgreSQL no esta optimizado para manejar grandes volumnees de información. Esto se va a ver representado en rendimiento y en costos. Una alternativa frente a esto como ya se menciono previamente es Redshift. Entiendo que esta optimizado para hacer queries en tablas más grandes de formas más eficiente ahorrando costos y tiempo.
+
+2. Si el pipeline se ejecutara diariamente en una ventana de tiempo especifica.
+    - Desde el punto de vista de arquitectura del pipeline de la Step Function se podría orquestrar la ejecución de Lambda 2X en forma asincrona y en lugar de hacerlo en serie. Sin embargo, hay que probar si la api de la NBA soporta esa cantidad de solicitudes.
+
+3. Si la base de datos necesitara ser atendida por más de 100 usuarios funcionales
+    - Esta solución claramente no fue pensada para una necesidad de ese estilo. En un caso de eso con un objetivo distinto, que no necesariamente tiene que ser el de análitica, podría pensarse en una base de datos no relacional.
+    - Preveer que tipo de solicitudes requieren hacer los usuarios y hacer vistas preprocesadas de la tabla principal.
+
+4. Si se requiere hacer analítica en tiempo real
+    - El proceso completo fue diseñado en batch, incluyendo el propósito, así que habría que cambiar muchos componentes, pero empezando con el propósito.
+    - Está Kinesis, el servicio de recolección y procesamiento de streaming de datos de AWS: https://docs.aws.amazon.com/streams/latest/dev/introduction.html
+    - Hay múltiples aplicaciones desde dashboards, hasta aplicaciones de analítica
+    - Kinesis también puede coordinarse para activar funciones Lambda: https://docs.aws.amazon.com/es_es/lambda/latest/dg/with-kinesis.html
