@@ -78,6 +78,25 @@ Esta tabla contiene las estadísticas de los resultados de los partidos a nivel 
 - blocks: bloqueos de anotación.
 - turnovers: perdidas de balón sin disparo al tablero.
 
+## Pipeline de Datos
+El pipeline principal se organizó alrededor de la extracción de datos de la api de la NBA. Esto debido a que estas son las tablas más grandes. La tabla de partidos de jugadores tiene más de 1'200.000 registros. 
+
+Las tabla de información de estados se alimenta manual a partir de un archivo .csv. Mientras que la tabla de salarios se alimenta por we scraping de una pagina web en un proceso que puede ser automatizado empleando metodologías similares a las empleadas en el pipeline principal (una Lambda de AWS puede hacer el trabajo). Esto último no se hizó en este proyecto por limitantes de tiempo.
+
+Ahora, sobre el pipeline principal, el más complejo, consta de dos procesos paralelos: el de los jugadores y el de los equipos. A continuación se explica la lógica de actualización para los jugadores, el proceso más pesado. El de los equipos funciona de forma analoga.
+
+![GitHub Logo](https://github.com/rdvargas40/NBA/blob/stagging/images/nba%20pipeline%20diagram.png)
+
+El proceso consta de tres etapas, las dos primeras coordinadas por una Step Function de AWS.
+1. Ejecución programada de una Lambda de AWS que actualiza la tabla de jugadores (players) y devuelve el listado de jugadores en activo para ser usados en el siguiente proceso.
+2. Descarga de la información de los partidos recientes de todos los jugadores. El listado de jugadores en activo se usa como iterador por la AWS Step Function para ejecutar multiples la segunda AWS Lambda. Esto se hace de esta manera debido a que la descarga de la información de los partidos recientes de todos los jugadores es un proceso muy pesado y demorado para ser ejecutado en una sola ejecución de Lambda. En cambio lo que vamos a hacer es partir la ejecución para que se realice jugador a jugador. La AWS Step Function nos permite orquestrar este proceso de forma serverless en la nube. El resultado de la descarga de información de los partidos recientes de cada jugador se guarda en AWS S3.
+3. Actualización de las Bases de Datos de Partidos. Ya por fuera de la AWS Step Function, existe una tercera Lambda que se activa cada vez que se deposita un archivo en la carpeta de partidos de jugadores del Bucket que tiene este proyecto en S3. Esta Lambda se activa, toma el archivo recien depositado y lo carga a la base de datos.
+
+A continiación un diagrama de la Step Function:
+![GitHub Logo](https://github.com/rdvargas40/NBA/blob/stagging/images/nba%20players%20step%20function%20diagram.png)
+
+Este proceso se despliega en muy buena medida empleando el servicio AWS Serverless Application Model (SAM) (https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html) con instrucciones incluidas en este repositorio.
+
 ## Intrucciones
 - dwh_template.cfg: Este archivo es un template para las credenciales de la base de datos en PostgreSQL. El archivo real se llama dwh.cfg, para correr los códigos, tiene que cargar este archivo en el paquete y en las carpetas de las lambdas de AWS (app.py)
 
