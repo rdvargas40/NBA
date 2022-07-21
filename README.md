@@ -110,6 +110,13 @@ Ejemplos:
 teams.py
     create_teams_table # Crea la tabla de equipos
     populate_teams_table # Llena la tabla de equipos con información histórica
+states.py
+    create_states_table # Crea la tabla
+    load_states_data # Llena la tabla de información histórica
+salaries.py
+    populate_database # Llena la talba de información histórica
+players_matches.py
+    populate_database # Llena la tabla de información histórica
 
 ```
 
@@ -132,12 +139,10 @@ sam deploy --guided
 - Estas lambdas son las que recogen los archivos de S3. La razón es porque SAM solo puede configurar Triggers de aquellos servicios que se confuiguran en el repositorio. Estas dos Lambdas deben escuchar a eventos en S3 de tipo Put, que ocurran en el Bucket "nba.pipeline", dentro de las carpetas: "players/matchs" y "teams/matchs/" respectivamente.
 
 
-
-
-
-
 ## Reglas de Calidad de Datos
-Se van a implementar filtros en las tablas para evitar que llegen datos atípicos.
+En la carpeta eda se encuentran notebooks por tipo de fuente de datos correspondientes al análisis exploratorio de la información histórica.
+
+A partir de este análisis exploratorio se definen los siguientes filtros en las tablas para evitar que llegen datos de mala calidad.
 
 ### Salarios
 - Los salarios deben ser mayores a 0 y menores a 300 millones de dolares, por ahora. Este limite superior se debe ir actualizando.
