@@ -55,7 +55,7 @@ def lambda_handler(event, context):
     # Updates the players table
     update_players_table()
 
-    # Return updated list of players , this is important for the pipeline
-    updated_players = players.get_players()
+    # Return updated list of active layers , this is important for the pipeline
+    updated_players = players.get_active_players()
 
     return {"players": updated_players}
