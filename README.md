@@ -17,6 +17,8 @@ Para alcanzar estós objetivos se orquestro una base de datos alrededor de las s
 - Dinero gastado por los equipos de la NBA, temporada a temporada. Esta información se toma haciendo web scraping de la pagina https://hoopshype.com
 - Tamaño de la población e ingreso por habitante de cada estado. Viene deun archivo csv descargado de la pagina https://apps.bea.gov/itable/iTable.cfm?ReqID=70&step=1s
 
+## Bases
+
 ## Intrucciones
 - dwh_template.cfg: Este archivo es un template para las credenciales de la base de datos en PostgreSQL. El archivo real se llama dwh.cfg, para correr los códigos, tiene que cargar este archivo en el paquete y en las carpetas de las lambdas de AWS (app.py)
 
